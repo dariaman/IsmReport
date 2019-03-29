@@ -1,0 +1,100 @@
+﻿@model IEnumerable<IsmReport.Models.InvoiceModel>
+
+
+@{
+    ViewData["Title"] = "Invoice";
+}
+
+
+
+<h1>Invoice</h1>
+
+<br />
+<br />
+
+<p>
+    @Html.ActionLink("Generate Invoice", "GenerateInv", "Invoice", new { @class = "btn btn-success" })
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.InvoiceNo)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.InvoiceDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PeriodeBln)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PeriodeThn)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Qty)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.GrandTotal)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CreateDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UpdateDate)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.InvoiceNo)
+        </td>
+        <td>
+            @if (item.InvoiceDate.HasValue)
+            {
+                @Convert.ToDateTime(item.InvoiceDate).ToString("dd MMM yyyy")
+            }
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PeriodeBln)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PeriodeThn)
+        </td>
+        <td style="text-align:right">
+            @String.Format("{0:N0}", item.Qty)
+        </td>
+        <td style="text-align:right">
+            @String.Format("{0:N0}", item.GrandTotal)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Status)
+        </td>
+        <td>
+            @item.CreateDate.ToString("dd MMM yyyy HH:mm:ss")
+        </td>
+        <td>
+            @if (item.UpdateDate.HasValue)
+            {
+                @Convert.ToDateTime(item.UpdateDate).ToString("dd MMM yyyy HH:mm:ss")
+            }
+        </td>
+        <td>
+
+            <a href="/Invoice/Index" data-file="/Invoice/Printinv/@item.id" class="file-download">Print</a>
+        </td>
+    </tr>
+    }
+
+</table>
+<script>
+    $(function () {
+        $('a.file-download').click(function () {
+            window.open($(this).data('file'));
+        });
+    });
+</script>

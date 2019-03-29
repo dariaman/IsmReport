@@ -1,0 +1,106 @@
+﻿@model IsmReport.Models.InvoiceModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Details</title>
+</head>
+<body>
+    <div>
+        <h4>InvoiceModel</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.InvoiceNo)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.InvoiceNo)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.InvoiceDate)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.InvoiceDate)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.PeriodeBln)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.PeriodeBln)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.PeriodeThn)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.PeriodeThn)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Deskripsi)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Deskripsi)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Qty)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Qty)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.GrandTotal)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.GrandTotal)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Status)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Status)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.CreateDate)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.CreateDate)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.UpdateDate)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.UpdateDate)
+            </dd>
+    
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+</body>
+</html>
