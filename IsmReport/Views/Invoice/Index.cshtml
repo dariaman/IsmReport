@@ -85,16 +85,9 @@
         </td>
         <td>
 
-            <a href="/Invoice/Index" data-file="/Invoice/Printinv/@item.id" class="file-download">Print</a>
+            <a href="/Invoice/Printinv/@item.id" class="file-download">Print</a>
         </td>
     </tr>
     }
 
 </table>
-<script>
-    $(function () {
-        $('a.file-download').click(function () {
-            window.open($(this).data('file'));
-        });
-    });
-</script>

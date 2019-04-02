@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Packaging;
 using IsmReport.Models;
 using Microsoft.Office.Interop.Word;
 using word = Microsoft.Office.Interop.Word;
@@ -17,120 +19,15 @@ namespace IsmReport.Controllers
     {
         private ApplicationDbContext _context = new ApplicationDbContext();
 
-        // GET: Invoice
         public ActionResult Index()
         {
-            if (!(TempData["pesanJudul"]==null || TempData["pesanType"] == null || TempData["pesanText"] == null))
+            if (!(TempData["pesanJudul"] == null || TempData["pesanType"] == null || TempData["pesanText"] == null))
             {
                 ViewBag.pesanJudul = TempData["pesanJudul"].ToString();
                 ViewBag.pesanType = TempData["pesanType"].ToString();
                 ViewBag.pesanText = TempData["pesanText"].ToString();
             }
             return View(_context.InvoiceModel.ToList());
-        }
-
-        //// GET: Invoice/Details/5
-        //public ActionResult Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    InvoiceModel invoiceModel = _context.InvoiceModel.Find(id);
-        //    if (invoiceModel == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    return View(invoiceModel);
-        //}
-
-        //// GET: Invoice/Create
-        //public ActionResult Create()
-        //{
-        //    return View();
-        //}
-
-        //// POST: Invoice/Create
-        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        //// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create([Bind(Include = "id,InvoiceNo,InvoiceDate,PeriodeBln,PeriodeThn,Deskripsi,Qty,GrandTotal,Status,CreateDate,UpdateDate")] InvoiceModel invoiceModel)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.InvoiceModel.Add(invoiceModel);
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
-
-        //    return View(invoiceModel);
-        //}
-
-        //// GET: Invoice/Edit/5
-        //public ActionResult Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    InvoiceModel invoiceModel = db.InvoiceModel.Find(id);
-        //    if (invoiceModel == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    return View(invoiceModel);
-        //}
-
-        //// POST: Invoice/Edit/5
-        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        //// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Edit([Bind(Include = "id,InvoiceNo,InvoiceDate,PeriodeBln,PeriodeThn,Deskripsi,Qty,GrandTotal,Status,CreateDate,UpdateDate")] InvoiceModel invoiceModel)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.Entry(invoiceModel).State = EntityState.Modified;
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
-        //    return View(invoiceModel);
-        //}
-
-        //// GET: Invoice/Delete/5
-        //public ActionResult Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    InvoiceModel invoiceModel = db.InvoiceModel.Find(id);
-        //    if (invoiceModel == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    return View(invoiceModel);
-        //}
-
-        //// POST: Invoice/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult DeleteConfirmed(int id)
-        //{
-        //    InvoiceModel invoiceModel = db.InvoiceModel.Find(id);
-        //    db.InvoiceModel.Remove(invoiceModel);
-        //    db.SaveChanges();
-        //    return RedirectToAction("Index");
-        //}
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _context.Dispose();
-            }
-            base.Dispose(disposing);
         }
 
         public ActionResult GenerateInv()
@@ -149,7 +46,7 @@ namespace IsmReport.Controllers
                 TempData["pesanType"] = "alert-success";
                 TempData["pesanText"] = "Generate invoice sukses";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 TempData["pesanJudul"] = "Error!";
                 TempData["pesanType"] = "alert-danger";
@@ -159,8 +56,6 @@ namespace IsmReport.Controllers
             {
                 cmd.Connection.Close();
             }
-            
-
             return RedirectToAction("Index");
         }
 
@@ -197,7 +92,9 @@ namespace IsmReport.Controllers
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception(ex.Message);
+                    TempData["pesanJudul"] = "Error!";
+                    TempData["pesanType"] = "alert-danger";
+                    TempData["pesanText"] = ex.Message;
                 }
                 finally
                 {
@@ -213,21 +110,41 @@ namespace IsmReport.Controllers
                 if (datainv.Filename == "" || datainv.InvoiceDate == null)
                 {
                     datainv.Filename = invfile;
-                    // update tgl Invoice
-                    datainv.InvoiceDate = UpdateInvoicePrint(id, datainv.Filename);
-                    CreatePdfInvoice(datainv);
+                    try
+                    {
+                        CreatePdfInvoice(datainv);
+                        // update tgl Invoice
+                        datainv.InvoiceDate = UpdateInvoicePrint(id, datainv.Filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        TempData["pesanJudul"] = "Error!";
+                        TempData["pesanType"] = "alert-danger";
+                        TempData["pesanText"] = ex.Message;
+                        return RedirectToAction("Index");
+                    }
                 }
 
                 string pathTemp = ConfigurationManager.AppSettings["FileInvoice"];
+
+                string Fileinvpdf = pathTemp + datainv.Filename;
+                if (!System.IO.File.Exists(Fileinvpdf))
+                {
+                    TempData["pesanJudul"] = "Error!";
+                    TempData["pesanType"] = "alert-danger";
+                    TempData["pesanText"] = "File template invoice tidak ditemukan " + Fileinvpdf;
+                    return RedirectToAction("Index");
+                }
+
                 Response.Headers.Add("content-disposition", "attachment; filename=" + datainv.Filename);
-                return File(new FileStream(pathTemp + datainv.Filename, FileMode.Open), "application/pdf");
+                return File(new FileStream(Fileinvpdf, FileMode.Open), "application/octet-stream");
 
             }
             catch (Exception ex)
             {
-                ViewBag.pesanJudul = "Error!";
-                ViewBag.pesanType = "alert-danger";
-                ViewBag.pesanText = ex.Message;
+                TempData["pesanJudul"] = "Error!";
+                TempData["pesanType"] = "alert-danger";
+                TempData["pesanText"] = ex.Message;
                 //throw new Exception(ex.Message);
                 return RedirectToAction("Index");
             }
@@ -278,10 +195,34 @@ namespace IsmReport.Controllers
             }
         }
 
+        //private void CreatePdfInvoice2(InvoiceModel datainv)
+        //{
+        //    using (WordprocessingDocument doc = WordprocessingDocument.Open(@"D:\DocTemplate\INVOICE ISOMEDIK (002).docx", true))
+        //    {
+        //        var body = doc.MainDocumentPart.Document.Body;
+        //        var paras = body.Elements<Paragraph>();
+
+        //        foreach (var para in paras)
+        //        {
+        //            foreach (var run in para.Elements<Run>())
+        //            {
+        //                foreach (var text in run.Elements<Text>())
+        //                {
+        //                    if (text.Text.Contains("text-to-replace")) text.Text = text.Text.Replace("text-to-replace", "replaced-text");
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //}
+
         private void CreatePdfInvoice(InvoiceModel datainv)
         {
             string pathTemp = ConfigurationManager.AppSettings["FileInvoice"];
             string pathDoc = ConfigurationManager.AppSettings["TemplateInvoice"];
+
+            if (!Directory.Exists(pathTemp)) throw new Exception("Directori " + pathTemp + " tidak ditemukan ");
+            if (!System.IO.File.Exists(pathDoc)) throw new Exception("File template invoice tidak ditemukan " + pathDoc);
 
             var matchCase = true;
             var matchWholeWord = true;
